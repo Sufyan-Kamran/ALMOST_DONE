@@ -21,6 +21,22 @@ totalqty.append(qty)
 #print("Total Sales Units is " , qty)
 con2 = pymysql.connect(host="localhost", user="root", password="", database="employee" )
 cur2 = con2.cursor()
+cur2.execute("select * from orders")
+row10 = cur2.fetchall()
+POS = []
+for ro10 in row10:
+    i = 0
+    aa = int(ro10[8]) 
+    ba = int(ro10[5])
+    ca = int(aa * ba)
+    POS.append(ca)
+
+TotalProfit = []
+
+TotalProfit.append(sum(POS))
+
+con2 = pymysql.connect(host="localhost", user="root", password="", database="employee" )
+cur2 = con2.cursor()
 cur2.execute("select * from products where Defected > 0 Limit 100000")
 row6 = cur2.fetchall()
 abc = []
@@ -54,8 +70,10 @@ for r in row7:
     totalSTk.append(r[4])
 totalstock = []
 totalstock.append(sum(totalSTk))
-a = {'Defected Items': items,'Lose': abc,'Total Sale':totalsale,'Sale Item':totalqty,'Total Stock':totalstock,'Total Stock Value': PQTY,'Total Lose':ap,}
+a = {'Defected Items': items,'Lose': abc,'Total Sale':totalsale,'Sale Item':totalqty,'Total Stock':totalstock,'Total Stock Value': PQTY,'Total Profit': TotalProfit,'Total Lose':ap,}
 df = pd.DataFrame.from_dict(a, orient='index')
 df = df.transpose()
 df.to_csv(r'Report.csv')
 print(df)
+
+
