@@ -160,11 +160,7 @@ def loginPage():
     labe2["text"] = row[3]
     en1 = Entry(frame)
     en1.place(x=600,y=700)
-    global pnam_var
-    pnam_var = StringVar()
-    enk = Entry(frame,textvariable=pnam_var,width=0)
-    enk.place(x=600,y=1000)
-    # dId = Entry(frame)
+    #dId = Entry(frame)
     #dId.place(x=900,y=650)
     dNames = Entry(frame)
     dNames.place(x=900,y=750)
@@ -176,10 +172,6 @@ def loginPage():
             selects = treeview3.focus()
             #grab record values
             global value 
-            global labe3
-            global labe4
-            global labe5
-            global labe6
             value = treeview3.item(selects,'values')        
             labe3 = Label(frame, text="",font=("times new roman", 15))
             labe3.place(x=150,y=750)
@@ -190,8 +182,8 @@ def loginPage():
             labe5 = Label(frame, text="",font=("times new roman", 15))
             labe5.place(x=600,y=650)
             labe5["text"] = value[2]
-            labe6 = Label(frame, text="",font=("times new roman", 15))
-            labe6.place(x=600,y=750)
+            labe5 = Label(frame, text="",font=("times new roman", 15))
+            labe5.place(x=600,y=750)
             global pi
             pi = int(value[0])
             a= int(value[2])
@@ -205,15 +197,12 @@ def loginPage():
                 fqt = qt - b   
                 btn1["state"] = "normal"
                 print(fqt)
-                global ca
-                ca = a*b
-                labe6["text"] = ca
-                print(ca)
             else:
-            
                 btn1["state"] = "disable"
                 messagebox.showerror("error","Sorry! not enough quantity available.")
-            
+            global c
+            c = a*b
+            labe5["text"] = c
         except Exception as e:
             messagebox.showerror("Error",e)
     def new():
@@ -221,34 +210,22 @@ def loginPage():
             con = pymysql.connect(host="localhost", user="root", password="", database="employee" )
             cur = con.cursor()
             b = int(en1.get())#int(row[0])
-            
+            global pnam_var
+            pnam_var = StringVar()
+            enk = Entry(frame,textvariable=pnam_var)
+            enk.place(x=600,y=700)
             enk.insert(0,value[1])
             print(enk.get())
             if b == "":
                 messagebox.showerror("Field Error"," All fields are required")
-            else: 
-                ppid = con.cursor()
-                ppid.execute("select * from products where Pid=%s",(pid))
-                ppid = ppid.fetchall()
-                for ppid1 in ppid:
-                    asaa = ppid1[7]
-                    print(ppid1[7])
-
-                cur.execute("insert into orders(Id,name,email,Pid,Pname,QTY,bill,Order_date,Buying_Rate) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)",(row[0],row[1],row[3],pid,enk.get(),b,ca,formatted_date,asaa))
+            else:
+                cur.execute("insert into orders(Id,name,email,Pid,Pname,QTY,bill,date) values(%s,%s,%s,%s,%s,%s,%s,%s)",(row[0],row[1],row[3],pid,enk.get(),b,c,formatted_date))
                 cur.execute("update products set QTY=%s where Pid=%s",(fqt,pi))
                 con.commit()
                 con.close
                 messagebox.showinfo("New Product", "New product added successfully")
                 btn1["state"] = "disable"
             enk.delete(0,END)
-            labe3["text"] = ""
-            labe3["width"] = 1
-            labe4["text"] = ""
-            labe4["width"] = 2
-            labe5["text"] = ""
-            labe5["width"] = 2
-            labe6["text"] = ""
-            labe6["width"] = 1
         except Exception as e:
             messagebox.showerror("Error",e)
     def Logout():
@@ -296,8 +273,7 @@ def loginPage():
             #grab record values
             global value 
             value = treeview4.item(selects,'values')        
-            print(value[2])
-            if value[3] <= dNames.get():
+            if value[3] == dNames.get():
                 messagebox.showerror("error","All fields are required !")
             else:
                 try:
@@ -306,48 +282,16 @@ def loginPage():
                     cur.execute("select * from orders")
                     con.commit()
                     con.close
-                    Dids = Label(frame, text="",fg="red",font=("times new roman", 15))
-                    Dids.place(x=950,y=650)
-                    Dids["text"]=value[3]
                     DNa = Label(frame, text="",fg="red",font=("times new roman", 15))
                     DNa.place(x=950,y=700)
                     DNa["text"]=value[2]
-                    a = int(dNames.get())
-                    try:                       
-                        con = pymysql.connect(host="localhost", user="root", password="", database="employee" )
-                        cur = con.cursor()
-                        cur.execute("select * from products where Pname=%s",(value[2]))
-                        defrow = cur.fetchall()
-                        for r in defrow:
-                            #print(r[5])1
-                            if r[5] <= "":
-                                print(a)
-                                con = pymysql.connect(host="localhost", user="root", password="", database="employee" )
-                                cur = con.cursor()
-                                cur.execute("update products set Defected=%s where PName=%s",(a,value[2]))
-                                con.commit()
-                                con.close
-                                messagebox.showinfo("Defected Product", "Sorry for inconvenience. Thanks for your valuable feedback. It will help to make our services more better.")
-                                dNames.delete(0, END)
-                                DNa["text"] = ""
-                                Dids["text"] = ""
-                            else:
-                                #print(int(r[5]) + a)
-                                b = (int(r[5]) + a)
-                                
-                                con = pymysql.connect(host="localhost", user="root", password="", database="employee" )
-                                cur = con.cursor()
-                                cur.execute("update products set Defected=%s where PName=%s",(b,value[2]))
-                                con.commit()
-                                con.close
-                                messagebox.showinfo("Defected Product", "Sorry for inconvenience. Thanks for your valuable feedback. It will help to make our services more better.")
-                                dNames.delete(0, END)
-                                DNa["text"] = ""
-                                Dids["text"] = ""
-                    except Exception as e:
-                        messagebox.showinfo("Defected Product", e)
                 except:
-                    print(":ERROR")
+                    con = pymysql.connect(host="localhost", user="root", password="", database="employee" )
+                    cur = con.cursor()
+                    cur.execute("update products set Defected=%s where PName=%s",(dId.get(),dId.get(),value[2]))
+                    con.commit()
+                    con.close
+                    messagebox.showinfo("Defected Product", "Sorry for inconvenience. Thanks for your valuable feedback. It will help to make our services more better.")
         except Exception as e:
             messagebox.showerror("error", e)
 
@@ -466,7 +410,7 @@ def loginPage():
     Btsnrefresh.place(x=750,y=550,width=70)
     con7 = pymysql.connect(host="localhost", user="root", password="", database="employee" )
     cur7 = con7.cursor()
-    cur7.execute("select * from orders ")
+    cur7.execute("select * from orders where date =2021-08")
     cs = cur7.fetchall()
     con7.commit()
     con7.close()    
